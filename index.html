@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>E-commerce Funnel & Churn Dashboard 2021–2024</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0a0e1a;color:#e2e8f0;font-size:14px}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#1a1f3a,#0f1628);border-bottom:2px solid #6c63ff;padding:18px 28px;display:flex;justify-content:space-between;align-items:center}
+.header h1{font-size:20px;font-weight:700;color:#fff;letter-spacing:-0.3px}
+.header h1 span{color:#6c63ff}
+.header-sub{font-size:11px;color:#64748b;margin-top:3px}
+.header-right{display:flex;gap:28px}
+.hstat{text-align:right}
+.hstat-val{font-size:20px;font-weight:700;font-family:monospace}
+.hstat-val.green{color:#00e5a0}
+.hstat-val.red{color:#ff5c7a}
+.hstat-val.blue{color:#6c63ff}
+.hstat-lbl{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.08em}
+
+/* TABS */
+.tabs{background:#0f1628;border-bottom:1px solid #1e2a45;display:flex;padding:0 28px;gap:4px}
+.tab{padding:12px 18px;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.04em;text-transform:uppercase}
+.tab:hover{color:#a0aec0}
+.tab.active{color:#6c63ff;border-bottom-color:#6c63ff}
+
+/* PAGES */
+.page{display:none;padding:24px 28px}
+.page.active{display:block}
+
+/* KPI CARDS */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px}
+.kpi-card{background:#111827;border:1px solid #1e2a45;border-radius:10px;padding:16px 18px;border-top:3px solid #6c63ff}
+.kpi-card.green{border-top-color:#00e5a0}
+.kpi-card.amber{border-top-color:#ffb547}
+.kpi-card.red{border-top-color:#ff5c7a}
+.kpi-card.blue{border-top-color:#3ec9ff}
+.kpi-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#64748b;font-weight:600;margin-bottom:8px}
+.kpi-val{font-size:26px;font-weight:700;font-family:monospace;color:#f1f5f9;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:#475569}
+.kpi-tag{display:inline-block;margin-top:6px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+.tag-green{background:rgba(0,229,160,.15);color:#00e5a0}
+.tag-red{background:rgba(255,92,122,.15);color:#ff5c7a}
+.tag-blue{background:rgba(108,99,255,.15);color:#6c63ff}
+.tag-amber{background:rgba(255,181,71,.15);color:#ffb547}
+
+/* CHART GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.span-2{grid-column:span 2}
+.span-3{grid-column:span 3}
+
+/* CHART CARD */
+.chart-card{background:#111827;border:1px solid #1e2a45;border-radius:10px;padding:18px 20px}
+.chart-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:3px}
+.chart-sub{font-size:11px;color:#475569;margin-bottom:14px}
+.chart-wrap{position:relative}
+
+/* FUNNEL BARS */
+.funnel-wrap{padding:8px 0}
+.f-row{display:grid;grid-template-columns:110px 1fr 90px 80px;align-items:center;gap:10px;margin-bottom:10px}
+.f-label{font-size:12px;font-weight:600;color:#94a3b8}
+.f-track{background:#1e2a45;border-radius:6px;height:32px;overflow:hidden}
+.f-bar{height:100%;border-radius:6px;display:flex;align-items:center;padding:0 12px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
+.f-count{font-size:11px;font-family:monospace;color:#94a3b8;text-align:right}
+.f-drop{font-size:10px;font-weight:700;color:#ff5c7a;text-align:right}
+
+/* RFM CARDS */
+.rfm-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.rfm-card{background:#111827;border:1px solid #1e2a45;border-radius:10px;padding:14px 16px}
+.rfm-dot{width:10px;height:10px;border-radius:50%;margin-bottom:8px}
+.rfm-seg{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#64748b;font-weight:600;margin-bottom:6px}
+.rfm-n{font-size:24px;font-weight:700;font-family:monospace;color:#f1f5f9;line-height:1}
+.rfm-ltv{font-size:11px;color:#475569;margin-top:3px}
+.rfm-action{font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;margin-top:8px;display:inline-block}
+
+/* COHORT TABLE */
+.cohort-wrap{overflow-x:auto}
+.cohort-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.cohort-tbl th{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#475569;font-weight:600;padding:6px 8px;border-bottom:1px solid #1e2a45;text-align:center;background:#0a0e1a}
+.cohort-tbl th:first-child{text-align:left}
+.cohort-tbl td{padding:5px 6px;text-align:center;border-bottom:1px solid rgba(30,42,69,.4)}
+.cohort-tbl td:first-child{text-align:left;color:#94a3b8;font-size:11px;padding-left:4px}
+.c-cell{display:inline-block;min-width:38px;padding:3px 4px;border-radius:4px;font-family:monospace;font-size:10px;font-weight:700}
+
+/* STRATEGY TABLE */
+.strat-tbl{width:100%;border-collapse:collapse}
+.strat-tbl th{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#475569;font-weight:600;padding:10px 12px;border-bottom:1px solid #1e2a45;text-align:left;background:#0a0e1a}
+.strat-tbl td{padding:11px 12px;border-bottom:1px solid rgba(30,42,69,.4);font-size:12px;color:#94a3b8;vertical-align:top}
+.strat-tbl tr:hover td{background:#0f1628}
+.p-urgent{background:rgba(255,92,122,.15);color:#ff5c7a;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.p-high{background:rgba(255,181,71,.15);color:#ffb547;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.p-med{background:rgba(108,99,255,.15);color:#a99dff;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.p-low{background:rgba(0,229,160,.15);color:#00e5a0;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:700}
+.seg-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600}
+
+/* DATA TABLE */
+.data-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.data-tbl th{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:#475569;font-weight:600;padding:9px 10px;border-bottom:1px solid #1e2a45;text-align:right;background:#0a0e1a}
+.data-tbl th:first-child{text-align:left}
+.data-tbl td{padding:9px 10px;border-bottom:1px solid rgba(30,42,69,.4);text-align:right;color:#94a3b8;font-family:monospace;font-size:11px}
+.data-tbl td:first-child{text-align:left;color:#f1f5f9;font-family:system-ui;font-weight:500}
+.data-tbl tr:hover td{background:#0f1628}
+
+footer{background:#0f1628;border-top:1px solid #1e2a45;padding:12px 28px;display:flex;justify-content:space-between;font-size:10px;color:#475569}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>E-commerce <span>Funnel & Churn</span> Dashboard</h1>
+    <div class="header-sub">UK Retail · 2,000 Customers · 5,566 Orders · 2021–2024</div>
+  </div>
+  <div class="header-right">
+    <div class="hstat"><div class="hstat-val green">£1.08M</div><div class="hstat-lbl">Total Revenue</div></div>
+    <div class="hstat"><div class="hstat-val red">57.6%</div><div class="hstat-lbl">Churn Rate</div></div>
+    <div class="hstat"><div class="hstat-val blue">6.8%</div><div class="hstat-lbl">Avg Conversion</div></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('overview',this)">Overview</button>
+  <button class="tab" onclick="showPage('funnel',this)">Funnel</button>
+  <button class="tab" onclick="showPage('cohort',this)">Cohort</button>
+  <button class="tab" onclick="showPage('churn',this)">Churn & RFM</button>
+  <button class="tab" onclick="showPage('strategy',this)">Strategy</button>
+  <button class="tab" onclick="showPage('datatable',this)">Data Table</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: OVERVIEW -->
+<div class="page active" id="page-overview">
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-lbl">Total Revenue 2024</div><div class="kpi-val">£640k</div><div class="kpi-sub">Full year 2024</div><span class="kpi-tag tag-green">▲ 134% YoY</span></div>
+    <div class="kpi-card green"><div class="kpi-lbl">Total Orders 2024</div><div class="kpi-val">3,263</div><div class="kpi-sub">Orders placed</div><span class="kpi-tag tag-green">▲ 129% YoY</span></div>
+    <div class="kpi-card blue"><div class="kpi-lbl">Avg Order Value</div><div class="kpi-val">£196</div><div class="kpi-sub">2024 average</div><span class="kpi-tag tag-blue">→ Stable</span></div>
+    <div class="kpi-card amber"><div class="kpi-lbl">Unique Customers</div><div class="kpi-val">1,331</div><div class="kpi-sub">Active in 2024</div><span class="kpi-tag tag-amber">▲ 65% YoY</span></div>
+    <div class="kpi-card red"><div class="kpi-lbl">Repeat Order Rate</div><div class="kpi-val">78%</div><div class="kpi-sub">2024 avg</div><span class="kpi-tag tag-green">▲ vs 32% in 2021</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-card span-2">
+      <div class="chart-title">Monthly Revenue 2021–2024</div>
+      <div class="chart-sub">Purple bars = revenue · Teal line = average order value · Nov/Dec peaks = Black Friday & Christmas</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-revenue"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Revenue by Category</div>
+      <div class="chart-sub">Electronics = 44% of all revenue · Clothing = 21%</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-category"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Year-on-Year Revenue Growth</div>
+      <div class="chart-sub">From £46k in 2021 to £640k in 2024 — 1,284% total growth</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-yoy"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: FUNNEL -->
+<div class="page" id="page-funnel">
+  <div class="kpi-row">
+    <div class="kpi-card blue"><div class="kpi-lbl">Avg Monthly Sessions</div><div class="kpi-val">166k</div><div class="kpi-sub">2024 average</div><span class="kpi-tag tag-green">▲ 40% vs 2021</span></div>
+    <div class="kpi-card"><div class="kpi-lbl">Overall Conversion</div><div class="kpi-val">6.8%</div><div class="kpi-sub">Session → Purchase</div><span class="kpi-tag tag-blue">UK avg: 3–5%</span></div>
+    <div class="kpi-card amber"><div class="kpi-lbl">Cart Abandonment</div><div class="kpi-val">43.5%</div><div class="kpi-sub">2024 average</div><span class="kpi-tag tag-green">Better than 75% UK avg</span></div>
+    <div class="kpi-card red"><div class="kpi-lbl">Checkout Abandon</div><div class="kpi-val">27%</div><div class="kpi-sub">Key drop-off point</div><span class="kpi-tag tag-red">Fix = £14k/mo gain</span></div>
+    <div class="kpi-card green"><div class="kpi-lbl">Cart → Purchase</div><div class="kpi-val">41%</div><div class="kpi-sub">Of cart adds convert</div><span class="kpi-tag tag-green">Above benchmark</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-title">Conversion Funnel — 2024 Monthly Average</div>
+      <div class="chart-sub">Drop-off at each stage of the purchase journey</div>
+      <div class="funnel-wrap" id="funnel-viz"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Monthly Conversion Rate Trend 2021–2024</div>
+      <div class="chart-sub">Session-to-purchase conversion rate over 48 months</div>
+      <div class="chart-wrap" style="height:280px"><canvas id="c-conv"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Cart Abandonment Rate by Month</div>
+      <div class="chart-sub">High = bad · Red bars = above average abandonment</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-cart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Monthly Session Volume</div>
+      <div class="chart-sub">Traffic growth 2021–2024 · Nov/Dec peaks visible</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-sess"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: COHORT -->
+<div class="page" id="page-cohort">
+  <div class="kpi-row">
+    <div class="kpi-card red"><div class="kpi-lbl">Month 1 Retention</div><div class="kpi-val">~12%</div><div class="kpi-sub">Avg — steepest drop</div><span class="kpi-tag tag-red">Critical window</span></div>
+    <div class="kpi-card amber"><div class="kpi-lbl">Month 3 Retention</div><div class="kpi-val">~15%</div><div class="kpi-sub">Avg across cohorts</div><span class="kpi-tag tag-amber">Plateau forming</span></div>
+    <div class="kpi-card"><div class="kpi-lbl">Month 6 Retention</div><div class="kpi-val">~11%</div><div class="kpi-sub">Avg across cohorts</div><span class="kpi-tag tag-red">Needs intervention</span></div>
+    <div class="kpi-card green"><div class="kpi-lbl">Champions Recency</div><div class="kpi-val">35 days</div><div class="kpi-sub">Avg last purchase</div><span class="kpi-tag tag-green">Highly active</span></div>
+    <div class="kpi-card red"><div class="kpi-lbl">Hibernating Recency</div><div class="kpi-val">490 days</div><div class="kpi-sub">Avg last purchase</div><span class="kpi-tag tag-red">Win-back needed</span></div>
+  </div>
+  <div class="grid-2">
+    <div class="chart-card span-2">
+      <div class="chart-title">Cohort Retention Heatmap — % Still Active After N Months</div>
+      <div class="chart-sub">Row = acquisition month · Column = months since first purchase · Green = strong retention · Red = churn</div>
+      <div class="cohort-wrap"><table class="cohort-tbl" id="cohort-tbl"></table></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Average Retention Curve — 2021 Cohorts</div>
+      <div class="chart-sub">Month 0 to Month 8 — steepest drop is Month 0 → 1</div>
+      <div class="chart-wrap" style="height:250px"><canvas id="c-retention"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Customer Segment Distribution</div>
+      <div class="chart-sub">RFM segment breakdown — Champions = 374 customers, 40% of revenue</div>
+      <div class="chart-wrap" style="height:250px"><canvas id="c-rfm-donut"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: CHURN & RFM -->
+<div class="page" id="page-churn">
+  <div class="kpi-row">
+    <div class="kpi-card red"><div class="kpi-lbl">Overall Churn Rate</div><div class="kpi-val">57.6%</div><div class="kpi-sub">&gt;90 days no purchase</div><span class="kpi-tag tag-red">High — act now</span></div>
+    <div class="kpi-card amber"><div class="kpi-lbl">Revenue at Risk</div><div class="kpi-val">£218k</div><div class="kpi-sub">At Risk + Cannot Lose</div><span class="kpi-tag tag-red">20% of total</span></div>
+    <div class="kpi-card"><div class="kpi-lbl">Champions Revenue</div><div class="kpi-val">£428k</div><div class="kpi-sub">374 customers = 40%</div><span class="kpi-tag tag-green">Protect this group</span></div>
+    <div class="kpi-card green"><div class="kpi-lbl">Best Channel LTV</div><div class="kpi-val">Social</div><div class="kpi-sub">£682 avg LTV</div><span class="kpi-tag tag-green">Lowest churn too</span></div>
+    <div class="kpi-card red"><div class="kpi-lbl">Worst Churn Channel</div><div class="kpi-val">Organic</div><div class="kpi-sub">61.7% churn rate</div><span class="kpi-tag tag-red">Review SEO quality</span></div>
+  </div>
+  <div class="rfm-grid" id="rfm-cards"></div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-title">Churn Rate by Acquisition Channel</div>
+      <div class="chart-sub">Referral = best at 46.8% · Organic Search = worst at 61.7%</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-churn-ch"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Average Customer LTV by Channel</div>
+      <div class="chart-sub">Social Media delivers both highest LTV and lower churn</div>
+      <div class="chart-wrap" style="height:240px"><canvas id="c-ltv-ch"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: STRATEGY -->
+<div class="page" id="page-strategy">
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="chart-card" style="border-color:rgba(255,92,122,.4)">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#ff5c7a;font-weight:700;margin-bottom:8px">🚨 URGENT — Cannot Lose Them</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">Win-Back: 153 Customers</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.7">High-frequency buyers gone silent (avg 351 days). Send personalised win-back email with 15% loyalty voucher. Phone the top 20 by LTV.<br><br><strong style="color:#f1f5f9">Potential recovery: £145k</strong></div>
+    </div>
+    <div class="chart-card" style="border-color:rgba(255,181,71,.4)">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#ffb547;font-weight:700;margin-bottom:8px">⚡ HIGH — At Risk Segment</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">Re-engage: 140 Customers</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.7">Average £518 LTV, 394 days dormant. Trigger automated 3-email re-engagement flow at Day 60, 90, 120 with decreasing offers.<br><br><strong style="color:#f1f5f9">Potential recovery: £72k</strong></div>
+    </div>
+    <div class="chart-card" style="border-color:rgba(0,229,160,.4)">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#00e5a0;font-weight:700;margin-bottom:8px">✅ PROTECT — Champions</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:8px">VIP Programme: 374 Customers</div>
+      <div style="font-size:12px;color:#64748b;line-height:1.7">£1,144 avg LTV, purchasing every 35 days. Launch VIP tier with early product access, free returns, birthday rewards.<br><br><strong style="color:#f1f5f9">Revenue protected: £428k</strong></div>
+    </div>
+  </div>
+  <div class="chart-card" style="margin-bottom:16px">
+    <div class="chart-title">Full Segment Action Plan</div>
+    <div class="chart-sub" style="margin-bottom:14px">Every RFM segment with recommended action, priority, and timeline</div>
+    <table class="strat-tbl" id="strat-tbl"></table>
+  </div>
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="chart-title">Revenue at Stake — Churned Segments</div>
+      <div class="chart-sub">At 30% recovery rate — what each win-back campaign could recapture</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-stake"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Funnel Optimisation — Monthly Revenue Impact</div>
+      <div class="chart-sub">Estimated £ gain per improvement action</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="c-opp"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ PAGE: DATA TABLE -->
+<div class="page" id="page-datatable">
+  <div style="margin-bottom:16px;display:flex;align-items:center;gap:16px">
+    <span style="font-size:12px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.08em">Filter by Year:</span>
+    <select id="yr-filter" onchange="renderTable()" style="background:#111827;border:1px solid #1e2a45;color:#e2e8f0;padding:6px 12px;border-radius:6px;font-size:12px">
+      <option value="all">All Years</option>
+      <option value="2024" selected>2024</option>
+      <option value="2023">2023</option>
+      <option value="2022">2022</option>
+      <option value="2021">2021</option>
+    </select>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title">Monthly KPI Data</div>
+    <div class="chart-sub" style="margin-bottom:14px">Revenue, orders, customers, AOV, conversion and cart abandonment</div>
+    <table class="data-tbl">
+      <thead><tr><th>Period</th><th>Revenue</th><th>Orders</th><th>Customers</th><th>AOV</th><th>Repeat %</th><th>Sessions</th><th>Conversion %</th><th>Cart Abandon %</th></tr></thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<footer>
+  <div>Synthetic UK e-commerce data · ONS Retail benchmarks · Baymard Institute conversion rates · 2021–2024</div>
+  <div>E-commerce Funnel & Churn Analysis · Data Analyst Portfolio Project</div>
+</footer>
+
+<script>
+// ─── ALL DATA ────────────────────────────────────────────────────────────────
+const KPIS=[{year:2021,month:1,period:"2021-01",revenue:1164.47,orders:6,unique_customers:6,avg_order_value:194.08,repeat_rate_pct:0.0,overall_conversion_rate:5.2,cart_abandonment_rate:46.0,sessions:99062},{year:2021,month:2,period:"2021-02",revenue:131.83,orders:1,unique_customers:1,avg_order_value:131.83,repeat_rate_pct:0.0,overall_conversion_rate:7.73,cart_abandonment_rate:43.2,sessions:94787},{year:2021,month:3,period:"2021-03",revenue:1511.42,orders:5,unique_customers:5,avg_order_value:302.28,repeat_rate_pct:20.0,overall_conversion_rate:6.39,cart_abandonment_rate:45.7,sessions:104640},{year:2021,month:4,period:"2021-04",revenue:1705.01,orders:9,unique_customers:8,avg_order_value:189.45,repeat_rate_pct:11.1,overall_conversion_rate:5.16,cart_abandonment_rate:45.3,sessions:109434},{year:2021,month:5,period:"2021-05",revenue:1845.82,orders:14,unique_customers:12,avg_order_value:131.84,repeat_rate_pct:35.7,overall_conversion_rate:5.68,cart_abandonment_rate:47.0,sessions:112670},{year:2021,month:6,period:"2021-06",revenue:1468.73,orders:9,unique_customers:9,avg_order_value:163.19,repeat_rate_pct:11.1,overall_conversion_rate:6.35,cart_abandonment_rate:45.7,sessions:114657},{year:2021,month:7,period:"2021-07",revenue:3841.11,orders:19,unique_customers:18,avg_order_value:202.16,repeat_rate_pct:5.3,overall_conversion_rate:8.87,cart_abandonment_rate:41.4,sessions:108481},{year:2021,month:8,period:"2021-08",revenue:4578.36,orders:21,unique_customers:20,avg_order_value:218.02,repeat_rate_pct:28.6,overall_conversion_rate:6.46,cart_abandonment_rate:45.6,sessions:107359},{year:2021,month:9,period:"2021-09",revenue:3378.73,orders:18,unique_customers:18,avg_order_value:187.71,repeat_rate_pct:22.2,overall_conversion_rate:6.42,cart_abandonment_rate:41.5,sessions:110166},{year:2021,month:10,period:"2021-10",revenue:5053.68,orders:34,unique_customers:32,avg_order_value:148.64,repeat_rate_pct:44.1,overall_conversion_rate:7.59,cart_abandonment_rate:42.4,sessions:129899},{year:2021,month:11,period:"2021-11",revenue:7779.73,orders:28,unique_customers:27,avg_order_value:277.85,repeat_rate_pct:32.1,overall_conversion_rate:6.99,cart_abandonment_rate:40.3,sessions:156341},{year:2021,month:12,period:"2021-12",revenue:13772.92,orders:44,unique_customers:43,avg_order_value:313.02,repeat_rate_pct:38.6,overall_conversion_rate:6.29,cart_abandonment_rate:38.9,sessions:183802},{year:2022,month:1,period:"2022-01",revenue:6636.75,orders:39,unique_customers:37,avg_order_value:170.17,repeat_rate_pct:30.8,overall_conversion_rate:5.45,cart_abandonment_rate:47.7,sessions:111513},{year:2022,month:2,period:"2022-02",revenue:4729.93,orders:34,unique_customers:33,avg_order_value:139.12,repeat_rate_pct:41.2,overall_conversion_rate:5.04,cart_abandonment_rate:45.1,sessions:106475},{year:2022,month:3,period:"2022-03",revenue:9399.57,orders:61,unique_customers:59,avg_order_value:154.09,repeat_rate_pct:36.1,overall_conversion_rate:5.88,cart_abandonment_rate:40.9,sessions:115617},{year:2022,month:4,period:"2022-04",revenue:7802.45,orders:45,unique_customers:41,avg_order_value:173.39,repeat_rate_pct:48.9,overall_conversion_rate:6.93,cart_abandonment_rate:47.1,sessions:125241},{year:2022,month:5,period:"2022-05",revenue:6607.05,orders:39,unique_customers:37,avg_order_value:169.41,repeat_rate_pct:41.0,overall_conversion_rate:6.33,cart_abandonment_rate:46.9,sessions:131410},{year:2022,month:6,period:"2022-06",revenue:12143.82,orders:65,unique_customers:64,avg_order_value:186.83,repeat_rate_pct:47.7,overall_conversion_rate:8.2,cart_abandonment_rate:45.8,sessions:127011},{year:2022,month:7,period:"2022-07",revenue:7374.67,orders:45,unique_customers:42,avg_order_value:163.88,repeat_rate_pct:40.0,overall_conversion_rate:6.59,cart_abandonment_rate:47.3,sessions:124230},{year:2022,month:8,period:"2022-08",revenue:9821.72,orders:70,unique_customers:67,avg_order_value:140.31,repeat_rate_pct:48.6,overall_conversion_rate:6.33,cart_abandonment_rate:47.2,sessions:117579},{year:2022,month:9,period:"2022-09",revenue:7901.42,orders:49,unique_customers:47,avg_order_value:161.25,repeat_rate_pct:44.9,overall_conversion_rate:6.89,cart_abandonment_rate:46.3,sessions:129999},{year:2022,month:10,period:"2022-10",revenue:9894.37,orders:58,unique_customers:56,avg_order_value:170.59,repeat_rate_pct:58.6,overall_conversion_rate:6.46,cart_abandonment_rate:38.9,sessions:145390},{year:2022,month:11,period:"2022-11",revenue:19954.93,orders:78,unique_customers:76,avg_order_value:255.83,repeat_rate_pct:51.3,overall_conversion_rate:7.82,cart_abandonment_rate:39.5,sessions:184578},{year:2022,month:12,period:"2022-12",revenue:22143.71,orders:86,unique_customers:81,avg_order_value:257.48,repeat_rate_pct:51.2,overall_conversion_rate:7.43,cart_abandonment_rate:40.0,sessions:211413},{year:2023,month:1,period:"2023-01",revenue:11376.99,orders:75,unique_customers:73,avg_order_value:151.69,repeat_rate_pct:57.3,overall_conversion_rate:7.14,cart_abandonment_rate:38.1,sessions:122796},{year:2023,month:2,period:"2023-02",revenue:12584.41,orders:77,unique_customers:72,avg_order_value:163.43,repeat_rate_pct:58.4,overall_conversion_rate:6.06,cart_abandonment_rate:43.2,sessions:120265},{year:2023,month:3,period:"2023-03",revenue:13342.32,orders:89,unique_customers:85,avg_order_value:149.91,repeat_rate_pct:61.8,overall_conversion_rate:6.33,cart_abandonment_rate:47.3,sessions:131642},{year:2023,month:4,period:"2023-04",revenue:17081.36,orders:111,unique_customers:106,avg_order_value:153.89,repeat_rate_pct:62.2,overall_conversion_rate:6.98,cart_abandonment_rate:39.0,sessions:139653},{year:2023,month:5,period:"2023-05",revenue:18774.52,orders:103,unique_customers:99,avg_order_value:182.28,repeat_rate_pct:57.3,overall_conversion_rate:7.28,cart_abandonment_rate:40.7,sessions:138371},{year:2023,month:6,period:"2023-06",revenue:24033.33,orders:115,unique_customers:105,avg_order_value:208.99,repeat_rate_pct:64.3,overall_conversion_rate:7.03,cart_abandonment_rate:46.1,sessions:143533},{year:2023,month:7,period:"2023-07",revenue:21632.54,orders:130,unique_customers:122,avg_order_value:166.4,repeat_rate_pct:66.2,overall_conversion_rate:7.72,cart_abandonment_rate:43.7,sessions:143122},{year:2023,month:8,period:"2023-08",revenue:20330.29,orders:125,unique_customers:119,avg_order_value:162.64,repeat_rate_pct:69.6,overall_conversion_rate:8.05,cart_abandonment_rate:40.0,sessions:135783},{year:2023,month:9,period:"2023-09",revenue:25539.15,orders:138,unique_customers:130,avg_order_value:185.07,repeat_rate_pct:71.0,overall_conversion_rate:8.1,cart_abandonment_rate:42.9,sessions:141097},{year:2023,month:10,period:"2023-10",revenue:31919.89,orders:161,unique_customers:144,avg_order_value:198.26,repeat_rate_pct:68.9,overall_conversion_rate:6.35,cart_abandonment_rate:38.5,sessions:155486},{year:2023,month:11,period:"2023-11",revenue:31082.17,orders:139,unique_customers:121,avg_order_value:223.61,repeat_rate_pct:71.2,overall_conversion_rate:6.24,cart_abandonment_rate:45.3,sessions:196081},{year:2023,month:12,period:"2023-12",revenue:45304.73,orders:163,unique_customers:152,avg_order_value:277.94,repeat_rate_pct:64.4,overall_conversion_rate:6.35,cart_abandonment_rate:45.7,sessions:227088},{year:2024,month:1,period:"2024-01",revenue:23018.42,orders:173,unique_customers:160,avg_order_value:133.05,repeat_rate_pct:72.8,overall_conversion_rate:6.56,cart_abandonment_rate:46.2,sessions:132443},{year:2024,month:2,period:"2024-02",revenue:25102.31,orders:175,unique_customers:160,avg_order_value:143.44,repeat_rate_pct:73.1,overall_conversion_rate:5.78,cart_abandonment_rate:39.5,sessions:125853},{year:2024,month:3,period:"2024-03",revenue:29756.5,orders:170,unique_customers:160,avg_order_value:175.04,repeat_rate_pct:73.5,overall_conversion_rate:6.75,cart_abandonment_rate:46.4,sessions:139151},{year:2024,month:4,period:"2024-04",revenue:36573.86,orders:199,unique_customers:183,avg_order_value:183.79,repeat_rate_pct:73.9,overall_conversion_rate:7.3,cart_abandonment_rate:38.4,sessions:144636},{year:2024,month:5,period:"2024-05",revenue:40492.05,orders:244,unique_customers:216,avg_order_value:165.95,repeat_rate_pct:78.3,overall_conversion_rate:5.97,cart_abandonment_rate:45.8,sessions:158327},{year:2024,month:6,period:"2024-06",revenue:41718.48,orders:221,unique_customers:196,avg_order_value:188.77,repeat_rate_pct:71.5,overall_conversion_rate:8.02,cart_abandonment_rate:42.2,sessions:157255},{year:2024,month:7,period:"2024-07",revenue:49281.0,orders:271,unique_customers:236,avg_order_value:181.85,repeat_rate_pct:80.4,overall_conversion_rate:5.67,cart_abandonment_rate:43.7,sessions:152467},{year:2024,month:8,period:"2024-08",revenue:47506.17,orders:299,unique_customers:250,avg_order_value:158.88,repeat_rate_pct:79.3,overall_conversion_rate:6.53,cart_abandonment_rate:46.3,sessions:143871},{year:2024,month:9,period:"2024-09",revenue:51025.58,orders:284,unique_customers:235,avg_order_value:179.67,repeat_rate_pct:82.0,overall_conversion_rate:7.18,cart_abandonment_rate:44.7,sessions:159201},{year:2024,month:10,period:"2024-10",revenue:67495.1,orders:381,unique_customers:316,avg_order_value:177.15,repeat_rate_pct:83.2,overall_conversion_rate:6.76,cart_abandonment_rate:42.9,sessions:164599},{year:2024,month:11,period:"2024-11",revenue:106185.27,orders:406,unique_customers:313,avg_order_value:261.54,repeat_rate_pct:82.8,overall_conversion_rate:7.04,cart_abandonment_rate:46.2,sessions:225394},{year:2024,month:12,period:"2024-12",revenue:121958.78,orders:440,unique_customers:319,avg_order_value:277.18,repeat_rate_pct:88.6,overall_conversion_rate:7.31,cart_abandonment_rate:39.1,sessions:250184}];
+const ANNUAL=[{year:2021,revenue:46231.81,orders:208,customers:148,aov:222.27},{year:2022,revenue:124410.39,orders:669,customers:454,aov:185.96},{year:2023,revenue:273001.7,orders:1426,customers:809,aov:191.45},{year:2024,revenue:640113.52,orders:3263,customers:1331,aov:196.17}];
+const CAT=[{category:"Electronics",revenue:474944},{category:"Clothing",revenue:223763},{category:"Home & Garden",revenue:198615},{category:"Sports",revenue:83984},{category:"Beauty",revenue:63362},{category:"Books",revenue:20893},{category:"Toys",revenue:18197}];
+const RFM=[{rfm_segment:"Champions",n:374,avg_recency:34.5,avg_frequency:5.6,avg_monetary:1144.3,total_revenue:427964},{rfm_segment:"Loyal Customers",n:329,avg_recency:91.0,avg_frequency:3.9,avg_monetary:745.8,total_revenue:245377},{rfm_segment:"Hibernating",n:371,avg_recency:490.0,avg_frequency:1.4,avg_monetary:259.2,total_revenue:96149},{rfm_segment:"Cannot Lose Them",n:153,avg_recency:351.1,avg_frequency:5.1,avg_monetary:948.3,total_revenue:145095},{rfm_segment:"At Risk",n:140,avg_recency:394.4,avg_frequency:2.9,avg_monetary:517.6,total_revenue:72467},{rfm_segment:"Recent Customers",n:163,avg_recency:38.0,avg_frequency:1.5,avg_monetary:385.1,total_revenue:62770},{rfm_segment:"Lost",n:130,avg_recency:127.0,avg_frequency:1.5,avg_monetary:261.0,total_revenue:33936}];
+const CHURN_CH=[{ch:"Referral",rate:46.8,ltv:671},{ch:"Email",rate:54.3,ltv:641},{ch:"Social Media",rate:56.5,ltv:682},{ch:"Direct",rate:57.2,ltv:631},{ch:"Paid Search",rate:58.1,ltv:642},{ch:"Organic Search",rate:61.7,ltv:658}];
+const COHORT_IDX=["2021-01","2021-02","2021-03","2021-04","2021-05","2021-06","2021-07","2021-08","2021-09","2021-10","2021-11","2021-12","2022-01","2022-02","2022-03","2022-04","2022-05","2022-06"];
+const COHORT_VALS=[[100,null,16.7,null,16.7,null,null,16.7,null],[100,null,null,null,null,null,null,null,null],[100,null,null,25.0,null,null,null,25.0,null],[100,25.0,null,null,null,null,25.0,25.0,null],[100,null,null,null,null,null,11.1,11.1,null],[100,null,25.0,12.5,12.5,null,12.5,null,null],[100,11.1,11.1,38.9,11.1,11.1,11.1,null,null],[100,6.7,null,13.3,6.7,6.7,13.3,6.7,13.3],[100,14.3,7.1,21.4,7.1,null,7.1,null,7.1],[100,null,10.5,10.5,21.1,5.3,15.8,5.3,null],[100,21.1,5.3,5.3,null,10.5,10.5,10.5,null],[100,3.7,11.1,14.8,7.4,3.7,11.1,7.4,18.5],[100,7.4,18.5,11.1,3.7,7.4,7.4,11.1,3.7],[100,15.0,5.0,20.0,15.0,null,5.0,null,null],[100,10.3,2.6,12.8,10.3,10.3,7.7,15.4,15.4],[100,null,8.7,null,4.3,4.3,4.3,4.3,4.3],[100,null,4.3,null,8.7,null,null,8.7,8.7],[100,null,14.7,8.8,5.9,8.8,11.8,5.9,5.9]];
+const FUNNEL_2024={sessions:165827,pdp:105274,cart:27401,checkout:14931,purchase:10470};
+const SEG_META={Champions:{col:"#6c63ff",action:"Reward & Upsell",p:"Protect"},
+"Loyal Customers":{col:"#00e5a0",action:"Cross-sell",p:"Low"},
+"Recent Customers":{col:"#3ec9ff",action:"Onboard & Nurture",p:"Medium"},
+"At Risk":{col:"#ff8c42",action:"Win-back Flow",p:"High"},
+"Cannot Lose Them":{col:"#ff5c7a",action:"Priority Outreach",p:"Urgent"},
+Hibernating:{col:"#64748b",action:"Reactivation Email",p:"Medium"},
+Lost:{col:"#374151",action:"Sunset / Re-acquire",p:"Low"}};
+
+// ─── CHART REGISTRY ──────────────────────────────────────────────────────────
+const charts={};
+function mkChart(id,config){
+  if(charts[id]){charts[id].destroy();}
+  const ctx=document.getElementById(id);
+  if(!ctx)return;
+  charts[id]=new Chart(ctx,config);
+}
+const GRID_COLOR='rgba(30,42,69,0.8)';
+const TICK={color:'#475569',font:{size:10,family:'system-ui'}};
+const baseOpts={responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false},tooltip:{backgroundColor:'#1e293b',titleColor:'#f1f5f9',bodyColor:'#94a3b8',borderColor:'#334155',borderWidth:1,padding:10,cornerRadius:6}},
+  scales:{x:{grid:{display:false},ticks:TICK,border:{display:false}},
+          y:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:TICK,border:{display:false}}}};
+
+// ─── PAGE SWITCHER ────────────────────────────────────────────────────────────
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  setTimeout(()=>buildPage(id),50);
+}
+
+function buildPage(id){
+  if(id==='overview')buildOverview();
+  if(id==='funnel')buildFunnel();
+  if(id==='cohort')buildCohort();
+  if(id==='churn')buildChurn();
+  if(id==='strategy')buildStrategy();
+  if(id==='datatable')renderTable();
+}
+
+// ─── OVERVIEW ────────────────────────────────────────────────────────────────
+function buildOverview(){
+  // Revenue + AOV dual axis
+  mkChart('c-revenue',{
+    type:'bar',
+    data:{
+      labels:KPIS.map(d=>d.period),
+      datasets:[
+        {type:'bar',label:'Revenue',data:KPIS.map(d=>+(d.revenue/1000).toFixed(1)),
+         backgroundColor:KPIS.map(d=>d.month>=11?'rgba(0,229,160,0.7)':'rgba(108,99,255,0.6)'),
+         borderWidth:0,borderRadius:2,yAxisID:'y'},
+        {type:'line',label:'AOV',data:KPIS.map(d=>+d.avg_order_value.toFixed(0)),
+         borderColor:'#ffb547',borderWidth:2,pointRadius:0,fill:false,tension:0.4,yAxisID:'y2'}
+      ]
+    },
+    options:{...baseOpts,
+      plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#94a3b8',font:{size:10},boxWidth:10,padding:16}}},
+      scales:{
+        x:{grid:{display:false},ticks:{...TICK,maxTicksLimit:14},border:{display:false}},
+        y:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>'£'+v+'k'},border:{display:false}},
+        y2:{position:'right',grid:{display:false},ticks:{...TICK,callback:v=>'£'+v},border:{display:false}}
+      }}
+  });
+
+  // Category doughnut
+  const catCols=['#6c63ff','#00e5a0','#3ec9ff','#ffb547','#ff6bcd','#ff5c7a','#94a3b8'];
+  mkChart('c-category',{
+    type:'doughnut',
+    data:{labels:CAT.map(d=>d.category),datasets:[{data:CAT.map(d=>+(d.revenue/1000).toFixed(0)),backgroundColor:catCols,borderColor:'#111827',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+      plugins:{legend:{display:true,position:'right',labels:{color:'#94a3b8',font:{size:11},padding:8,boxWidth:12}},
+        tooltip:{backgroundColor:'#1e293b',titleColor:'#f1f5f9',bodyColor:'#94a3b8',borderColor:'#334155',borderWidth:1,padding:8,callbacks:{label:c=>'£'+(c.raw)+'k'}}}}
+  });
+
+  // YoY bars
+  mkChart('c-yoy',{
+    type:'bar',
+    data:{labels:ANNUAL.map(d=>d.year),datasets:[
+      {label:'Revenue (£k)',data:ANNUAL.map(d=>+(d.revenue/1000).toFixed(0)),backgroundColor:'rgba(108,99,255,0.7)',borderWidth:0,borderRadius:6},
+      {label:'Orders',data:ANNUAL.map(d=>d.orders),backgroundColor:'rgba(0,229,160,0.6)',borderWidth:0,borderRadius:6,yAxisID:'y2'}
+    ]},
+    options:{...baseOpts,
+      plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#94a3b8',font:{size:10},boxWidth:10,padding:12}}},
+      scales:{
+        x:{grid:{display:false},ticks:TICK,border:{display:false}},
+        y:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>'£'+v+'k'},border:{display:false}},
+        y2:{position:'right',grid:{display:false},ticks:TICK,border:{display:false}}
+      }}
+  });
+}
+
+// ─── FUNNEL ──────────────────────────────────────────────────────────────────
+function buildFunnel(){
+  // HTML funnel
+  const stages=[
+    {label:'Sessions',val:FUNNEL_2024.sessions,col:'#3ec9ff',drop:null},
+    {label:'PDP Views',val:FUNNEL_2024.pdp,col:'#6c63ff',drop:((1-FUNNEL_2024.pdp/FUNNEL_2024.sessions)*100).toFixed(1)},
+    {label:'Cart Adds',val:FUNNEL_2024.cart,col:'#ffb547',drop:((1-FUNNEL_2024.cart/FUNNEL_2024.pdp)*100).toFixed(1)},
+    {label:'Checkouts',val:FUNNEL_2024.checkout,col:'#ff8c42',drop:((1-FUNNEL_2024.checkout/FUNNEL_2024.cart)*100).toFixed(1)},
+    {label:'Purchases',val:FUNNEL_2024.purchase,col:'#00e5a0',drop:((1-FUNNEL_2024.purchase/FUNNEL_2024.checkout)*100).toFixed(1)},
+  ];
+  const max=stages[0].val;
+  document.getElementById('funnel-viz').innerHTML=stages.map((s,i)=>`
+    <div class="f-row">
+      <div class="f-label">${s.label}</div>
+      <div class="f-track">
+        <div class="f-bar" style="width:${(s.val/max*100).toFixed(0)}%;background:${s.col}">
+          ${s.val.toLocaleString()}
+        </div>
+      </div>
+      <div class="f-count">${(s.val/max*100).toFixed(1)}%</div>
+      <div class="f-drop">${s.drop?'▼ '+s.drop+'% drop':''}</div>
+    </div>
+  `).join('');
+
+  // Conversion trend
+  mkChart('c-conv',{
+    type:'line',
+    data:{labels:KPIS.map(d=>d.period),datasets:[{
+      label:'Conversion Rate %',data:KPIS.map(d=>d.overall_conversion_rate),
+      borderColor:'#6c63ff',backgroundColor:'rgba(108,99,255,0.12)',
+      fill:true,tension:0.4,borderWidth:2.5,pointRadius:0,pointHoverRadius:5
+    }]},
+    options:{...baseOpts,scales:{
+      x:{grid:{display:false},ticks:{...TICK,maxTicksLimit:14},border:{display:false}},
+      y:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>v+'%'},border:{display:false}}
+    }}
+  });
+
+  // Cart abandonment
+  mkChart('c-cart',{
+    type:'bar',
+    data:{labels:KPIS.map(d=>d.period),datasets:[{
+      data:KPIS.map(d=>d.cart_abandonment_rate),
+      backgroundColor:KPIS.map(d=>d.cart_abandonment_rate>46?'rgba(255,92,122,0.7)':'rgba(255,181,71,0.6)'),
+      borderWidth:0,borderRadius:2
+    }]},
+    options:{...baseOpts,scales:{
+      x:{grid:{display:false},ticks:{...TICK,maxTicksLimit:14},border:{display:false}},
+      y:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>v+'%'},border:{display:false}}
+    }}
+  });
+
+  // Sessions
+  mkChart('c-sess',{
+    type:'line',
+    data:{labels:KPIS.map(d=>d.period),datasets:[{
+      data:KPIS.map(d=>+(d.sessions/1000).toFixed(1)),
+      borderColor:'#3ec9ff',backgroundColor:'rgba(62,201,255,0.1)',
+      fill:true,tension:0.4,borderWidth:2,pointRadius:0
+    }]},
+    options:{...baseOpts,scales:{
+      x:{grid:{display:false},ticks:{...TICK,maxTicksLimit:14},border:{display:false}},
+      y:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>v+'k'},border:{display:false}}
+    }}
+  });
+}
+
+// ─── COHORT ───────────────────────────────────────────────────────────────────
+function buildCohort(){
+  // Cohort table
+  const cols=[0,1,2,3,4,5,6,7,8];
+  let html='<thead><tr><th>Cohort</th>'+cols.map(c=>'<th>M'+c+'</th>').join('')+'</tr></thead><tbody>';
+  COHORT_IDX.forEach((cohort,i)=>{
+    html+='<tr><td>'+cohort+'</td>';
+    cols.forEach(c=>{
+      const v=COHORT_VALS[i][c];
+      let style='background:#1e2a45;color:#374151';
+      if(v!==null){
+        if(v>=50)style='background:rgba(0,229,160,0.25);color:#00e5a0';
+        else if(v>=25)style='background:rgba(0,229,160,0.12);color:#00c48c';
+        else if(v>=10)style='background:rgba(255,181,71,0.15);color:#ffb547';
+        else style='background:rgba(255,92,122,0.15);color:#ff5c7a';
+      }
+      html+='<td><span class="c-cell" style="'+style+'">'+(v!==null?v.toFixed(0)+'%':'–')+'</span></td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody>';
+  document.getElementById('cohort-tbl').innerHTML=html;
+
+  // Retention curve - avg per period
+  const avgs=cols.map(c=>{
+    const vals=COHORT_VALS.map(r=>r[c]).filter(v=>v!==null);
+    return vals.length?+(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1):null;
+  });
+  mkChart('c-retention',{
+    type:'line',
+    data:{labels:cols.map(c=>'Month '+c),datasets:[{
+      label:'Avg Retention %',data:avgs,
+      borderColor:'#6c63ff',backgroundColor:'rgba(108,99,255,0.15)',
+      fill:true,tension:0.4,borderWidth:2.5,
+      pointRadius:5,pointBackgroundColor:'#6c63ff',pointBorderColor:'#0a0e1a',pointBorderWidth:2
+    }]},
+    options:{...baseOpts,scales:{
+      x:{grid:{display:false},ticks:TICK,border:{display:false}},
+      y:{grid:{color:GRID_COLOR,lineWidth:0.5},min:0,max:105,ticks:{...TICK,callback:v=>v+'%'},border:{display:false}}
+    }}
+  });
+
+  // RFM donut
+  const sorted=[...RFM].sort((a,b)=>b.total_revenue-a.total_revenue);
+  const rfmCols=sorted.map(d=>(SEG_META[d.rfm_segment]||{col:'#64748b'}).col);
+  mkChart('c-rfm-donut',{
+    type:'doughnut',
+    data:{labels:sorted.map(d=>d.rfm_segment),datasets:[{data:sorted.map(d=>d.n),backgroundColor:rfmCols.map(c=>c+'cc'),borderColor:'#111827',borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'55%',
+      plugins:{legend:{display:true,position:'right',labels:{color:'#94a3b8',font:{size:10},padding:6,boxWidth:10}},
+        tooltip:{backgroundColor:'#1e293b',titleColor:'#f1f5f9',bodyColor:'#94a3b8',borderColor:'#334155',borderWidth:1,padding:8,
+          callbacks:{label:ctx=>{const s=sorted[ctx.dataIndex];return s.n+' customers · £'+s.avg_monetary.toFixed(0)+' avg LTV';}}}}}
+  });
+}
+
+// ─── CHURN & RFM ─────────────────────────────────────────────────────────────
+function buildChurn(){
+  // RFM cards
+  const sorted=[...RFM].sort((a,b)=>b.total_revenue-a.total_revenue);
+  const maxRev=sorted[0].total_revenue;
+  document.getElementById('rfm-cards').innerHTML=sorted.map(seg=>{
+    const m=SEG_META[seg.rfm_segment]||{col:'#64748b',action:'Review',p:'Low'};
+    const pClass={Urgent:'p-urgent',High:'p-high',Medium:'p-med',Low:'p-low',Protect:'p-low'}[m.p]||'p-med';
+    const pct=(seg.total_revenue/maxRev*100).toFixed(0);
+    return`<div class="rfm-card">
+      <div class="rfm-dot" style="background:${m.col}"></div>
+      <div class="rfm-seg">${seg.rfm_segment}</div>
+      <div class="rfm-n">${seg.n}</div>
+      <div class="rfm-ltv">£${seg.avg_monetary.toFixed(0)} avg LTV &nbsp;·&nbsp; £${(seg.total_revenue/1000).toFixed(0)}k total</div>
+      <div style="height:4px;background:#1e2a45;border-radius:2px;margin-top:8px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${m.col};border-radius:2px"></div>
+      </div>
+      <span class="rfm-action ${pClass}" style="background:${m.col}22;color:${m.col}">${m.action}</span>
+    </div>`;
+  }).join('');
+
+  // Churn by channel
+  const sorted_ch=[...CHURN_CH].sort((a,b)=>a.rate-b.rate);
+  mkChart('c-churn-ch',{
+    type:'bar',
+    data:{labels:sorted_ch.map(d=>d.ch),datasets:[{
+      data:sorted_ch.map(d=>d.rate),
+      backgroundColor:sorted_ch.map(d=>d.rate<55?'rgba(0,229,160,0.7)':d.rate<60?'rgba(255,181,71,0.7)':'rgba(255,92,122,0.7)'),
+      borderWidth:0,borderRadius:5
+    }]},
+    options:{...baseOpts,indexAxis:'y',
+      scales:{
+        x:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>v+'%'},border:{display:false}},
+        y:{grid:{display:false},ticks:TICK,border:{display:false}}
+      }}
+  });
+
+  // LTV by channel
+  const sorted_ltv=[...CHURN_CH].sort((a,b)=>b.ltv-a.ltv);
+  mkChart('c-ltv-ch',{
+    type:'bar',
+    data:{labels:sorted_ltv.map(d=>d.ch),datasets:[{
+      data:sorted_ltv.map(d=>d.ltv),
+      backgroundColor:'rgba(108,99,255,0.7)',
+      borderWidth:0,borderRadius:5
+    }]},
+    options:{...baseOpts,indexAxis:'y',
+      scales:{
+        x:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>'£'+v},border:{display:false}},
+        y:{grid:{display:false},ticks:TICK,border:{display:false}}
+      }}
+  });
+}
+
+// ─── STRATEGY ────────────────────────────────────────────────────────────────
+function buildStrategy(){
+  const rows=[
+    {seg:"Cannot Lose Them",col:"#ff5c7a",n:153,churn:"~82%",rev:"£145k",rec:"351 days",action:"Personalised win-back email with 15% loyalty voucher. Call top 20 by LTV directly.",p:"Urgent",pc:"p-urgent",time:"7 days"},
+    {seg:"At Risk",col:"#ff8c42",n:140,churn:"~72%",rev:"£72k",rec:"394 days",action:"Automated 3-email re-engagement at Day 60/90/120 with decreasing discount offers.",p:"High",pc:"p-high",time:"14 days"},
+    {seg:"Champions",col:"#6c63ff",n:374,churn:"~8%",rev:"£428k",rec:"35 days",action:"Launch VIP loyalty tier. Early access, free returns, birthday rewards.",p:"Protect",pc:"p-low",time:"Ongoing"},
+    {seg:"Loyal Customers",col:"#00e5a0",n:329,churn:"~35%",rev:"£245k",rec:"91 days",action:"Cross-sell into new categories. Bundle offers. Refer-a-friend for £10 credit.",p:"High",pc:"p-high",time:"Monthly"},
+    {seg:"Hibernating",col:"#64748b",n:371,churn:"~91%",rev:"£96k",rec:"490 days",action:"'We miss you' reactivation email. Free shipping offer. Product refresh highlight.",p:"Medium",pc:"p-med",time:"30 days"},
+    {seg:"Recent Customers",col:"#3ec9ff",n:163,churn:"~45%",rev:"£63k",rec:"38 days",action:"Onboarding email series. 5% off second purchase. Category recommendation engine.",p:"Medium",pc:"p-med",time:"14 days"},
+    {seg:"Lost",col:"#374151",n:130,churn:"~95%",rev:"£34k",rec:"127 days",action:"Final win-back attempt then suppress. Consider lookalike ad re-acquisition.",p:"Low",pc:"p-low",time:"30-day cycle"},
+  ];
+  document.getElementById('strat-tbl').innerHTML=`<thead><tr><th>Segment</th><th>Customers</th><th>Churn %</th><th>Revenue at Stake</th><th>Avg Recency</th><th>Recommended Action</th><th>Priority</th><th>Timeline</th></tr></thead><tbody>${
+    rows.map(r=>`<tr>
+      <td><span class="seg-tag" style="background:${r.col}22;color:${r.col}"><span style="width:6px;height:6px;border-radius:50%;background:${r.col};display:inline-block"></span>${r.seg}</span></td>
+      <td style="color:#f1f5f9;font-weight:600">${r.n}</td>
+      <td style="color:#ff5c7a;font-family:monospace">${r.churn}</td>
+      <td style="color:#00e5a0;font-family:monospace">${r.rev}</td>
+      <td>${r.rec}</td>
+      <td style="font-size:11px;max-width:220px">${r.action}</td>
+      <td><span class="${r.pc}">${r.p}</span></td>
+      <td style="font-size:11px">${r.time}</td>
+    </tr>`).join('')
+  }</tbody>`;
+
+  // Revenue at stake chart
+  const atStake=[
+    {label:"Cannot Lose Them",val:Math.round(145095*0.3/1000)},
+    {label:"Hibernating",val:Math.round(96149*0.3/1000)},
+    {label:"At Risk",val:Math.round(72467*0.3/1000)},
+    {label:"Lost",val:Math.round(33936*0.3/1000)},
+  ];
+  mkChart('c-stake',{
+    type:'bar',
+    data:{labels:atStake.map(d=>d.label),datasets:[{
+      label:'Recoverable revenue (£k)',
+      data:atStake.map(d=>d.val),
+      backgroundColor:['rgba(255,92,122,0.7)','rgba(100,116,139,0.7)','rgba(255,140,66,0.7)','rgba(55,65,81,0.7)'],
+      borderWidth:0,borderRadius:6
+    }]},
+    options:{...baseOpts,
+      plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#94a3b8',font:{size:10},boxWidth:10}}},
+      scales:{
+        x:{grid:{display:false},ticks:TICK,border:{display:false}},
+        y:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>'£'+v+'k'},border:{display:false}}
+      }}
+  });
+
+  // Opportunities chart
+  mkChart('c-opp',{
+    type:'bar',
+    data:{
+      labels:['Champions VIP uplift','Email win-back (At Risk)','Checkout UX fix -5%','Reduce cart abandon -5%','SEO quality fix'],
+      datasets:[{
+        label:'Est. monthly revenue impact (£)',
+        data:[42796,21740,14200,18400,9800],
+        backgroundColor:['rgba(108,99,255,0.75)','rgba(255,140,66,0.75)','rgba(62,201,255,0.75)','rgba(255,181,71,0.75)','rgba(0,229,160,0.75)'],
+        borderWidth:0,borderRadius:5
+      }]
+    },
+    options:{...baseOpts,indexAxis:'y',
+      plugins:{...baseOpts.plugins,legend:{display:true,position:'top',labels:{color:'#94a3b8',font:{size:10},boxWidth:10}}},
+      scales:{
+        x:{grid:{color:GRID_COLOR,lineWidth:0.5},ticks:{...TICK,callback:v=>'£'+v.toLocaleString()},border:{display:false}},
+        y:{grid:{display:false},ticks:{...TICK,font:{size:10}},border:{display:false}}
+      }}
+  });
+}
+
+// ─── DATA TABLE ───────────────────────────────────────────────────────────────
+function renderTable(){
+  const yr=document.getElementById('yr-filter').value;
+  const rows=yr==='all'?KPIS:KPIS.filter(d=>d.year===+yr);
+  document.getElementById('tbl-body').innerHTML=rows.map(d=>`<tr>
+    <td>${d.period}</td>
+    <td>£${d.revenue.toLocaleString('en-GB',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+    <td>${d.orders}</td>
+    <td>${d.unique_customers}</td>
+    <td>£${d.avg_order_value.toFixed(2)}</td>
+    <td>${d.repeat_rate_pct}%</td>
+    <td>${d.sessions.toLocaleString()}</td>
+    <td>${d.overall_conversion_rate}%</td>
+    <td>${d.cart_abandonment_rate}%</td>
+  </tr>`).join('');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.addEventListener('load',function(){
+  buildOverview();
+  renderTable();
+});
+</script>
+</body>
+</html>
