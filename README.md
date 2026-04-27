@@ -6,8 +6,7 @@
 
 ## 🔴 Live Dashboard
 
-[![View Live Dashboard](https://img.shields.io/badge/Live%20Dashboard-View%20Now-7C6FFF?style=for-the-badge)](https://RidhimaGupta4.github.io/Ecommerce-Churn-Analysis
-/)
+[![View Live Dashboard](https://img.shields.io/badge/Live%20Dashboard-View%20Now-7C6FFF?style=for-the-badge)(https://RidhimaGupta4.github.io/Ecommerce-Churn-Analysis/)
 
 ---
 
