@@ -403,4 +403,4 @@ Built as a UK data analyst / data scientist portfolio project.
 
 *   **[🏠 UK Property Price Predictor](https://github.com/RidhimaGupta4/UK-Property-Price-Predictor)** — High-accuracy ML pipeline for real estate valuation and geospatial analysis.
 *   **[🏥 NHS A&E Wait Time Analysis](https://github.com/RidhimaGupta4/NHS-AE-Wait-Time-Analysis)** — Operational healthcare analytics and trend forecasting.
-*   **[🇬🇧 UK Cost-of-Living Dashboard](https://github.com/RidhimaGupta4/UK-Cost-of-Living)** — Regional economic data storytelling and affordability mapping.
+*   **[🇬🇧 UK Cost-of-Living](https://github.com/RidhimaGupta4/UK-Cost-of-Living)** — Regional economic data storytelling and affordability mapping.
