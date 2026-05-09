@@ -103,12 +103,6 @@ Customers are grouped into segments based on their R, F, M score combination:
 | Lost | = 1 | = 1 | Likely churned permanently |
 
 ---
-### 🔄 Churn Logic & Validation
-
-For this analysis, **Churn** is defined using a **90-day inactivity window**. 
-
-*   **Why 90 Days?** Based on UK e-commerce benchmarks, the typical customer purchase cycle for this category ranges from 30 to 60 days. A 90-day window ensures we are not flagging "active" customers who simply have a slightly longer replenishment cycle, while still capturing "at-risk" customers early enough for a win-back campaign.
-*   **Segmentation Accuracy:** By combining this churn definition with RFM scores, we distinguish between **"Hibernating"** customers (low value, long gone) and **"Cannot Lose Them"** customers (high value, recently lapsed), allowing for prioritised marketing spend.
 
 ### Churn Definition
 ```
@@ -116,6 +110,15 @@ Churned = 1   if   days since last purchase  >  90
 Churned = 0   if   days since last purchase  ≤  90
 ```
 A 90-day window is the standard e-commerce benchmark where purchase cycles are typically monthly to quarterly.
+
+---
+
+### 🔄 Churn Logic & Validation
+
+For this analysis, **Churn** is defined using a **90-day inactivity window**. 
+
+*   **Why 90 Days?** Based on UK e-commerce benchmarks, the typical customer purchase cycle for this category ranges from 30 to 60 days. A 90-day window ensures we are not flagging "active" customers who simply have a slightly longer replenishment cycle, while still capturing "at-risk" customers early enough for a win-back campaign.
+*   **Segmentation Accuracy:** By combining this churn definition with RFM scores, we distinguish between **"Hibernating"** customers (low value, long gone) and **"Cannot Lose Them"** customers (high value, recently lapsed), allowing for prioritised marketing spend.
 
 ---
 
