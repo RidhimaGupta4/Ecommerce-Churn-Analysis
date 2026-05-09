@@ -1,4 +1,5 @@
 # 🛒 E-commerce Funnel & Churn Analysis — UK Retail 2021–2024
+![Retention](https://img.shields.io/badge/Retention_Strategy-Data--Driven-7C6FFF?style=for-the-badge) ![RFM](https://img.shields.io/badge/Customer_Segmentation-RFM_Model-7C6FFF?style=for-the-badge) ![SQL](https://img.shields.io/badge/SQL_Queries-12_Analytical-005EB8?style=for-the-badge)
 
 > End-to-end analysis of a simulated UK e-commerce dataset covering funnel conversion, cohort retention, RFM segmentation, churn prediction, and data-backed retention strategy recommendations.
 
@@ -30,7 +31,7 @@ Built on 5,566 orders, 2,000 customers, 48 months of data (2021–2024).
 
 ## 🗂️ Repository Structure
 ```
-ecommerce-churn-analysis/
+Ecommerce-Churn-Analysis/
 │
 ├── scripts/
 │   ├── 01_generate_data.py        # Full synthetic UK e-commerce data pipeline
@@ -49,7 +50,7 @@ ecommerce-churn-analysis/
 │       └── dashboard_data.json         # All datasets combined for dashboard
 │
 ├── dashboard/
-│   └── index.html                 # ✅ Fully self-contained interactive dashboard
+│   └── index.html                 # Fully self-contained interactive dashboard
 │
 ├── outputs/
 │   ├── 01_revenue_aov_trend.png
@@ -102,6 +103,12 @@ Customers are grouped into segments based on their R, F, M score combination:
 | Lost | = 1 | = 1 | Likely churned permanently |
 
 ---
+### 🔄 Churn Logic & Validation
+
+For this analysis, **Churn** is defined using a **90-day inactivity window**. 
+
+*   **Why 90 Days?** Based on UK e-commerce benchmarks, the typical customer purchase cycle for this category ranges from 30 to 60 days. A 90-day window ensures we are not flagging "active" customers who simply have a slightly longer replenishment cycle, while still capturing "at-risk" customers early enough for a win-back campaign.
+*   **Segmentation Accuracy:** By combining this churn definition with RFM scores, we distinguish between **"Hibernating"** customers (low value, long gone) and **"Cannot Lose Them"** customers (high value, recently lapsed), allowing for prioritised marketing spend.
 
 ### Churn Definition
 ```
@@ -152,8 +159,8 @@ UK e-commerce average: 3–5%. This dataset achieves **6.8%** — above benchmar
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ecommerce-churn-analysis.git
-cd ecommerce-churn-analysis
+git clone https://github.com/RidhimaGupta4/Ecommerce-Churn-Analysis.git
+cd Ecommerce-Churn-Analysis
 ```
 
 ### 2. Install dependencies
@@ -303,52 +310,58 @@ Cohort month, period number (0–11), number of customers still active, cohort s
 
 ## 🧰 Tech Stack
 
-| Tool | Version | Role |
-|---|---|---|
-| Python | 3.10+ | Data pipeline and analysis |
-| pandas | 2.0+ | Data manipulation and transformation |
-| numpy | 1.24+ | Numerical computation |
-| matplotlib | 3.7+ | Static chart generation (dark theme) |
-| Chart.js | 4.4.1 | Interactive dashboard charts |
-| HTML / CSS / JavaScript | — | Self-contained single-file dashboard |
-| SQL | DuckDB / SQLite / PostgreSQL | 12 analytical queries |
+| Tool | Badge | Role |
+| :--- | :--- | :--- |
+| **Python** | ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white) | Customer behavior simulation & churn feature engineering |
+| **SQL** | ![SQL](https://img.shields.io/badge/SQL-Analytical-CC0000?style=flat-square&logo=postgresql&logoColor=white) | 12 queries: Cohort pivots, RFM scoring, & peak season analysis |
+| **DuckDB** | ![DuckDB](https://img.shields.io/badge/DuckDB-Fast_SQL-FFF000?style=flat-square&logo=duckdb&logoColor=black) | Local OLAP engine for high-speed retention calculations |
+| **Pandas / NumPy**| ![Data](https://img.shields.io/badge/Pandas_/_NumPy-CRM_Data-150458?style=flat-square&logo=pandas&logoColor=white) | Cohort matrix generation & RFM segmentation logic |
+| **JavaScript** | ![JS](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat-square&logo=javascript&logoColor=black) | Interactive funnel waterfall & cohort heatmap logic |
+| **Chart.js** | ![Chart.js](https://img.shields.io/badge/Chart.js-UI-FF6384?style=flat-square&logo=chartdotjs&logoColor=white) | Dynamic churn dashboard & segment donut charts |
+| **Matplotlib** | ![Matplotlib](https://img.shields.io/badge/Matplotlib-Dark_Theme-11557c?style=flat-square) | Professional dark-mode static charts for stakeholders |
 
 ---
 
 ## 💼 Skills Demonstrated
 
-- ✅ End-to-end e-commerce analytics — funnel, cohort, RFM, and churn all in one project
-- ✅ RFM segmentation from scratch — custom scoring, segment labelling, business action mapping
-- ✅ Cohort analysis — monthly retention heatmap, retention curve, drop-off identification
-- ✅ Churn feature engineering — binary labelling, purchase rate, lag variables, ML-ready output
-- ✅ Business recommendation framing — every finding tied to a specific action with £ impact estimate
-- ✅ SQL depth — 12 queries covering YoY, cohort pivot, repeat purchase gap, high-value profiling
-- ✅ Dark-theme data visualisation — professional e-commerce analytics aesthetic
+- End-to-end e-commerce analytics — funnel, cohort, RFM, and churn all in one project
+- RFM segmentation from scratch — custom scoring, segment labelling, business action mapping
+- Cohort analysis — monthly retention heatmap, retention curve, drop-off identification
+- Churn feature engineering — binary labelling, purchase rate, lag variables, ML-ready output
+- Business recommendation framing — every finding tied to a specific action with £ impact estimate
+- SQL depth — 12 queries covering YoY, cohort pivot, repeat purchase gap, high-value profiling
+- Dark-theme data visualisation — professional e-commerce analytics aesthetic
 
 ---
 
-## 🖼️ Chart Gallery
+## 🔍 Visual Insights
 
-### Revenue & AOV Trend 2021–2024
+### 💰 Revenue & AOV Trend (2021–2024)
 ![Revenue AOV Trend](outputs/01_revenue_aov_trend.png)
+> **Analysis:** Identifies long-term growth trajectories and Black Friday seasonality peaks. The dual-axis chart highlights the relationship between transaction volume and average spend.
 
-### Conversion Funnel — 2024 Monthly Average
+### 🌪️ E-commerce Conversion Funnel — 2024 Monthly Average
 ![Conversion Funnel](outputs/02_conversion_funnel.png)
+> **Analysis:** Visualises drop-off points from session to purchase. The 27% checkout abandonment rate identified here represents a specific £14k/month optimisation opportunity.
 
-### RFM Segment Map — Bubble Size = Revenue
+### 🎯 RFM Segment Map — Bubble Size = Revenue
 ![RFM Segment Map](outputs/03_rfm_segment_map.png)
+> **Analysis:** Bubble chart mapping Recency vs. Frequency, with bubble size representing Monetary value. This identifies the "Champions" segment (40% of revenue) versus "At Risk" high-value targets.
 
-### Cohort Retention Heatmap
+### 🗓️ Cohort Retention Heatmap
 ![Cohort Heatmap](outputs/04_cohort_retention_heatmap.png)
+> **Analysis:** Tracks customer loyalty over 12 months. The heatmap identifies the "Month 1 Cliff," where initial retention drops to 12%, pinpointing the critical window for automated re-engagement.
 
-### Churn Rate & LTV by Acquisition Channel
+### 📢 Churn Rate & LTV by Acquisition Channel Performance
 ![Churn by Channel](outputs/05_churn_by_channel.png)
+> **Analysis:** Correlates churn rate with LTV across Social, Search, and Referral. Social Media produces the highest LTV (£682), while Referral traffic exhibits the lowest churn (46.8%).
 
-### Category Revenue & AOV
+### 📦 Category Revenue Breakdown & AOV
 ![Category Revenue](outputs/06_category_revenue.png)
 
-### Retention Strategy Matrix
+### 📈 Retention Strategy Matrix
 ![Retention Strategy](outputs/07_retention_strategy_matrix.png)
+> **Analysis:** A decision-support matrix mapping specific business actions (e.g., win-back emails, VIP discounts) to the identified RFM segments based on their revenue-at-stake.
 
 ---
 
