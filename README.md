@@ -358,6 +358,7 @@ Cohort month, period number (0–11), number of customers still active, cohort s
 
 ### 📦 Category Revenue Breakdown & AOV
 ![Category Revenue](outputs/06_category_revenue.png)
+> **Analysis:** Highlights the dominance of Electronics in total revenue (£480k+), driven by a high Average Order Value (£350+). In contrast, Clothing shows high volume (unique buyers) but lower AOV, suggesting a high-frequency replenishment model.
 
 ### 📈 Retention Strategy Matrix
 ![Retention Strategy](outputs/07_retention_strategy_matrix.png)
