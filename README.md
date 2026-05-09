@@ -154,6 +154,15 @@ UK e-commerce average: 3–5%. This dataset achieves **6.8%** — above benchmar
 
 ---
 
+### ⚠️ Project Limitations
+
+This analysis provides a strategic overview of customer retention, but the following limitations apply:
+*   **External Factors**: The dataset does not account for competitor pricing changes or macro-economic shifts (e.g., inflation impact on discretionary spend) which can cause sudden churn spikes independent of customer loyalty.
+*   **Single-Event Bias**: RFM scoring treats all purchases equally, but does not distinguish between seasonal "one-off" gift buyers and true brand advocates without deeper sentiment analysis.
+*   **Window Sensitivity**: The 90-day churn definition is an e-commerce benchmark, but may be too aggressive for high-ticket categories with naturally longer replacement cycles (e.g., furniture or luxury electronics).
+
+---
+
 ## 🛠️ Quick Start
 
 ### 1. Clone the repository
@@ -277,6 +286,14 @@ Cohort month, period number (0–11), number of customers still active, cohort s
 
 ---
 
+### ⚖️ Data Ethics & Privacy
+
+*   **Synthetic Logic**: While the dataset is synthetic, all distributions (AOV, conversion rates, abandonment) are calibrated against **UK Retail Benchmarks** and **ONS Retail Sales** data to ensure realistic business insights.
+*   **Customer Anonymity**: The project follows **GDPR** principles by ensuring no PII (Personally Identifiable Information) is included. Data is aggregated at the segment and cohort level to demonstrate high-level business strategy without compromising individual privacy.
+*   **Algorithmic Transparency**: RFM scoring and churn labeling are documented with clear, transparent logic to avoid "black-box" bias in customer segmentation.
+
+---
+
 ## 📈 SQL Queries Included
 
 | Query | Purpose |
@@ -378,3 +395,9 @@ Built as a UK data analyst / data scientist portfolio project.
 **Connect:** [LinkedIn](https://www.linkedin.com/in/ridhimagupta1623/) · [GitHub](https://github.com/RidhimaGupta4) 
 
 > If this project helped you, please ⭐ star the repo — it helps others find it.
+
+## 📁 Explore More Projects
+
+*   **[🏠 UK Property Price Predictor](https://github.com/RidhimaGupta4/UK-Property-Price-Predictor)** — High-accuracy ML pipeline for real estate valuation and geospatial analysis.
+*   **[🏥 NHS A&E Wait Time Analysis](https://github.com/RidhimaGupta4/NHS-AE-Wait-Time-Analysis)** — Operational healthcare analytics and trend forecasting.
+*   **[🇬🇧 UK Cost-of-Living Dashboard](https://github.com/RidhimaGupta4/UK-Cost-of-Living)** — Regional economic data storytelling and affordability mapping.
